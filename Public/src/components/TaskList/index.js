@@ -4,61 +4,67 @@ import '../contador/index.js'
 class TaskList extends HTMLElement {
     constructor() {
         super()
-this.attachShadow({mode:'open'})
-this.tasks =[]
+        this.attachShadow({ mode: 'open' })
+        this.tasks = []
+        this.globalCounter = 0; // Contador global para asignar a cada tarea
     }
-connectedCallback(){
-    this.render()
 
-    const form = this.shadowRoot.querySelector('.task-form')
-        form.addEventListener("submit", (e)=>{
+    connectedCallback() {
+        this.render()
+
+        const form = this.shadowRoot.querySelector('.task-form')
+        form.addEventListener("submit", (e) => {
             e.preventDefault()
-        
+
             const title = this.shadowRoot.querySelector('.input-title').value
             const description = this.shadowRoot.querySelector('.input-description').value
 
-            this.tasks.push({title, description, state: false})
+            // Incrementar el contador global para asignar a la nueva tarea
+            this.globalCounter++
 
-            this.addTask({title, description, state: false})
-            
+            // Agregar la tarea al array con el contador individual
+            this.tasks.push({ title, description, state: false, contador: this.globalCounter })
+
+            this.addTask({ title, description, state: false, contador: this.globalCounter })
+            this.incrementCount(); // Actualiza el contador total de tareas
+
             form.reset()
         });
+    }
 
-}
+    incrementCount() {
+        // Actualiza el contador de tareas
+        this.contador = this.tasks.length;
+        this.shadowRoot.querySelector('.task-counter').textContent = `Total de tareas: ${this.contador}`;
+    }
 
-render(){
-    this.shadowRoot.innerHTML = `
-    <h2>Task List</h2>
-    <form class="task-form">
-        <input type="text" placeholder="Titulo" class="input-title" required>
-        <input type="text" placeholder="Descripcion" class="input-description" required>
-        <button>Agregar tarea</button>
-    </form>
-    <ul class="tasks-container">
-    </ul>
-    `
+    render() {
+        this.shadowRoot.innerHTML = `
+            <h2>Task List</h2>
+            <p class="task-counter">Total de tareas: ${this.contador}</p> <!-- Contador total -->
+            <form class="task-form">
+                <input type="text" placeholder="Titulo" class="input-title" required>
+                <input type="text" placeholder="Descripcion" class="input-description" required>
+                <button>Agregar tarea</button>
+            </form>
+            <ul class="tasks-container"></ul>
+        `;
 
-    this.tasks.forEach(task => this.addTask(task))
-}
+        // Renderiza cada tarea existente en el array tasks
+        this.tasks.forEach(task => this.addTask(task))
+    }
 
-addTask({title, description, state}){
-    
-    const tasksContainer = this.shadowRoot.querySelector('.tasks-container')
-    tasksContainer.innerHTML += `
-    <task-item title="${title}" description="${description}" state="${state}"></task-item>
-    `
+    addTask({ title, description, state, contador }) {
+        const tasksContainer = this.shadowRoot.querySelector('.tasks-container')
 
-    // const taskItem = document.createElement('task-item')
-    // taskItem.setAttribute('title', title)
-    // taskItem.setAttribute('description', description)
-    // taskItem.setAttribute('state', state)
-
-    // this.shadowRoot.querySelector('.tasks-container').appendChild(taskItem)
-
-}
+        tasksContainer.innerHTML += `
+            <li>
+                <task-item title="${title}" description="${description}" state="${state}"></task-item>
+                <p>Task ID: ${contador}</p> <!-- Mostrar el contador individual para cada tarea -->
+            </li>
+        `
+    }
 }
 
 customElements.define('task-list', TaskList)
 export default TaskList
-
-

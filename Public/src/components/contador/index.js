@@ -24,7 +24,7 @@ class CounterButton extends HTMLElement {
       <button>Counter: ${this.count}</button>
     `;
 
-		this.shadowRoot.querySelector('button').addEventListener('click', () => this.incrementCount());
+		this.shadowRoot.querySelectorAll('button').addEventListener('click', () => this.incrementCount());
 	}
 }
 
